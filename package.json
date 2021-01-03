@@ -21,7 +21,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "ci": "react-scripts test a --coverage --watchAll=false"
+    "ci": "react-scripts test --coverage --watchAll=false"
   },
   "eslintConfig": {
     "extends": [
@@ -48,12 +48,13 @@
         "functions": 50,
         "lines": 50,
         "statements": 50
-      },
-      "./src/components/": {
-        "branches": 40,
-        "statements": 40
       }
-    }
+    },
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!<rootDir>/node_modules/",
+      "!src/react-app-env.d.ts"
+    ]
   },
   "devDependencies": {
     "coveralls": "^3.1.0"
