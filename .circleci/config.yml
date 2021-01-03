@@ -8,7 +8,7 @@ jobs:
     steps:
       - run-test
       - store-coverage-data
-      - upload-coverage
+      - upload-coverage-data
 
     working_directory: ~/repo
 
@@ -35,7 +35,7 @@ commands:
       - store_artifacts:
           path: coverage
 
-  upload-coverage:
+  upload-coverage-data:
     steps:
       - codecov/upload:
           file: coverage/coverage-final.json
