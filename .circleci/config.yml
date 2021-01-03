@@ -20,6 +20,14 @@ jobs:
       - deploy-to-aws-s3
 
     working_directory: ~/repo
+  deploy-docs:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - build-project-storybook
+      - deploy-storybook-to-aws-s3
+
+    working_directory: ~/repo
 commands:
   run-test:
     steps:
@@ -73,12 +81,41 @@ commands:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY_BLUE
           from: build
           to: 's3://customer-registration-app'
+  build-project-storybook:
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: yarn build-storybook
+  deploy-storybook-to-aws-s3:
+    steps:
+      - aws-s3/sync:
+          arguments: |
+            --acl public-read \
+            --cache-control "max-age=86400"
+          aws-access-key-id: AWS_ACCESS_KEY_ID_BLUE
+          aws-region: AWS_REGION_BLUE
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY_BLUE
+          from: storybook-static
+          to: 's3://customer-registration-app-storybook'
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
       - deploy:
+          requires:
+             - build
+      - deploy-docs:
           requires:
              - build
           
