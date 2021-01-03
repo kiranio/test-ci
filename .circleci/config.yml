@@ -1,11 +1,18 @@
 version: 2
+orbs:
+  codecov: codecov/codecov@1.0.5
 jobs:
   build:
     docker:
       - image: circleci/node:12
+    steps:
+      - test
+      - store-coverage-data
+      - upload-coverage
 
     working_directory: ~/repo
-
+commands:
+  test:
     steps:
       - checkout
       - restore_cache:
@@ -20,4 +27,14 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - run: yarn test a --coverage --watchAll=false
+      - run: yarn ci
+  
+  store-coverage-data:
+    steps:
+      - store_artifacts:
+          path: coverage
+
+  upload-coverage:
+    steps:
+      - codecov/upload:
+          file: coverage/coverage-final.json
