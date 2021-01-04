@@ -149,14 +149,5 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - deploy:
-          requires:
-             - build
-      - deploy-docs:
-          requires:
-             - build
-      - e2e-acceptance-tests:
-          requires:
-             - deploy
+      - e2e-acceptance-tests
           
