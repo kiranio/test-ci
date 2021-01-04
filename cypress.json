@@ -1,0 +1,11 @@
+{
+    "baseUrl": "https://customer-registration-app.s3-ap-southeast-2.amazonaws.com",
+
+    "baseUrl": "http://localhost:3000",
+    "fixturesFolder": "test/e2e/cypress/fixtures",
+    "integrationFolder": "test/e2e/cypress/integration",
+    "pluginsFile": "test/e2e/cypress/plugins/index.js",
+    "screenshotsFolder": "test/e2e/cypress/screenshots",
+    "videosFolder": "test/e2e/cypress/videos",
+    "supportFile": "test/e2e/cypress/support/index.js"
+}

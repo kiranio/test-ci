@@ -28,6 +28,19 @@ jobs:
       - deploy-storybook-to-aws-s3
 
     working_directory: ~/repo
+
+  e2e-acceptance-tests:
+    docker:
+      # the Docker image with Cypress dependencies
+      - image: cypress/base:8
+        environment:
+          ## this enables colors in the output
+          TERM: xterm
+    parallelism: 1
+    steps:
+      - run-e2e-tests
+
+    working_directory: ~/repo
 commands:
   run-test:
     steps:
@@ -44,7 +57,7 @@ commands:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - run: yarn ci
+      - run: yarn test:coverage
   
   store-coverage-data:
     steps:
@@ -55,6 +68,7 @@ commands:
     steps:
       - codecov/upload:
           file: coverage/coverage-final.json
+
   build-project:
     steps:
       - checkout
@@ -70,6 +84,7 @@ commands:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: yarn build
+
   deploy-to-aws-s3:
     steps:
       - aws-s3/sync:
@@ -81,6 +96,7 @@ commands:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY_BLUE
           from: build
           to: 's3://customer-registration-app'
+
   build-project-storybook:
     steps:
       - checkout
@@ -96,6 +112,7 @@ commands:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: yarn build-storybook
+
   deploy-storybook-to-aws-s3:
     steps:
       - aws-s3/sync:
@@ -107,6 +124,27 @@ commands:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY_BLUE
           from: storybook-static
           to: 's3://customer-registration-app-storybook'
+
+  run-e2e-tests:
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run: yarn cy:run
+      - store_artifacts:
+          path: cypress/videos
+      - store_artifacts:
+          path: cypress/screenshots
 workflows:
   version: 2
   build_and_test:
@@ -118,4 +156,7 @@ workflows:
       - deploy-docs:
           requires:
              - build
+      - e2e-acceptance-tests:
+          requires:
+             - deploy
           
